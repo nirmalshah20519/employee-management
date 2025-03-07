@@ -70,7 +70,7 @@ export default function EmployeesManagement() {
     useEffect(() => {
         setLoading(true);
         getEmployees().then((resp) => {
-            setEmployees(resp.data);
+            setEmployees(resp);
             // console.log(resp);
         }).catch((error) => {
             toast.showToast('Failed to load services', error?.response?.data?.error ?? 'something went wrong', 'error');
@@ -257,9 +257,9 @@ export default function EmployeesManagement() {
                             header: "Action",
                             cell: ({ row }) => (
                                 <>
-                                    <Button variant={'outline'} onClick={() => handleEdit(row.original)} className="me-2 p-2">
+                                    {/* <Button variant={'outline'} onClick={() => handleEdit(row.original)} className="me-2 p-2">
                                         <FaEdit className=" text-2xl text-blue-500" />
-                                    </Button>
+                                    </Button> */}
                                     <Button variant={'outline'} onClick={() => handleDelete(row.original)} className="me-2 p-2">
                                         <MdDelete className=" text-2xl text-red-500" />
                                     </Button>
@@ -268,7 +268,7 @@ export default function EmployeesManagement() {
                         },
 
                         ]}
-                        data={employees} />
+                        data={employees??[]} />
                 </CardContent>
             </Card>
 

@@ -1,7 +1,6 @@
 import { Service } from "@/types/services.type";
 import { getConfig, getFormDataConfig, url } from "./auth.service";
 import axios from "axios";
-import fs from "fs";
 
 export const getServices = async () => {
   const config = getConfig();

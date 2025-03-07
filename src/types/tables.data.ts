@@ -109,15 +109,15 @@ export const serviceTableColumns: ColumnDef<Service>[] = [
 
 export const EmployeeTableColumns: ColumnDef<Employee>[] = [
   {
-    accessorKey: "Name",
+    accessorKey: "name",
     header: "Name",
   },
   {
-    accessorKey: "Email",
+    accessorKey: "email",
     header: "Email",
   },
   {
-    accessorKey: "IsVerified",
+    accessorKey: "verified",
     header: "Is Verified",
   }
 ];
