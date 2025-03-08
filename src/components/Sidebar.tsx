@@ -14,9 +14,10 @@ import { NavItem } from "@/types/sidebar.data";
 
 interface SidebarProps {
     navItems: NavItem[];
+    type: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ navItems }) => {
+const Sidebar: React.FC<SidebarProps> = ({ navItems, type }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
     const [isModalOpen, setModalOpen] = useState(false);
@@ -57,7 +58,7 @@ const Sidebar: React.FC<SidebarProps> = ({ navItems }) => {
                     </button>
                     {/* <img src="/GlobalFinanceOnly.png" alt="Logo" className="h-12 ml-4" /> */}
                     <div>
-                        <h1 className="text-3xl font-bold">Dufan</h1>
+                        <h1 className="text-3xl font-bold">Employee Management System</h1>
                         <p className="text-md text-green-500 font-semibold text-right w-full">{capitalize(user?.role as string)}</p>
                     </div>
                 </div>
@@ -75,7 +76,7 @@ const Sidebar: React.FC<SidebarProps> = ({ navItems }) => {
                 <div className="p-4 border-b border-neutral-600 bg-white">
                     <div className="flex justify-between items-center">
                         {/* <img src="/logo.png" alt="Ganpat University" className="h-12" /> */}
-                        <h1 className="text-3xl font-bold text-neutral-600">Dufan</h1>
+                        <h1 className="text-xl font-bold text-neutral-600">Employee Management System</h1>
                         <button onClick={toggleDrawer} className="text-neutral-700">
                             <FaTimes />
                         </button>
@@ -101,10 +102,10 @@ const Sidebar: React.FC<SidebarProps> = ({ navItems }) => {
                                             {item.subItems.map((subItem) => (
                                                 <NavLink
                                                     key={subItem.label}
-                                                    to={"/admin" + subItem.link}
+                                                    to={`/${type}` + subItem.link}
                                                     className={({ isActive }) =>
                                                         `flex items-center px-4 rounded-lg py-2 ${isActive
-                                                            ? "bg-neutral-800 hover:bg-neutral-700 text-neutral-300"
+                                                            ? "bg-orange-600 hover:bg-orange-700 text-orange-300"
                                                             : "bg-neutral-300 hover:bg-neutral-400 text-neutral-800"
                                                         }`
                                                     }
@@ -123,10 +124,10 @@ const Sidebar: React.FC<SidebarProps> = ({ navItems }) => {
                         return (
                             <NavLink
                                 key={item.label}
-                                to={"/admin" + item.link}
+                                to={`/${type}` + item.link}
                                 className={({ isActive }) =>
                                     `flex items-center px-4 py-2 ${isActive
-                                        ? "bg-neutral-800 hover:bg-neutral-700 text-neutral-300"
+                                        ? "bg-orange-600 hover:bg-orange-700 text-white"
                                         : "bg-neutral-300 hover:bg-neutral-400 text-neutral-800"
                                     }`
                                 }

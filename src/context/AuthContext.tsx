@@ -5,6 +5,7 @@ import { CustomJwtPayload } from "@/types/auth.type";
 type User = {
   email: string;
   role: string;
+  managerId: number;
 };
 
 type AuthContextType = {
@@ -26,13 +27,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const decodedToken = jwtDecode<CustomJwtPayload>(token);
       // console.log(decodedToken);
-      const { email } = decodedToken;
+      const { email, nameid } = decodedToken;
 
-      if (!email) {
+      if (!email || !nameid) {
         throw new Error("Invalid token");
       }
 
-      const user = { email, role: type };
+      const user = { email, role: type, managerId: parseInt(nameid) };
       console.log(user);
       setUser(user);
       setIsAuthenticated(true);
@@ -58,10 +59,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (token) {
       try {
         const decodedToken = jwtDecode<CustomJwtPayload>(token);
-        const { email } = decodedToken;
+        const { email, nameid } = decodedToken;
 
-        if (email) {
-          setUser({ email, role: type.toLowerCase() });
+        if (email && nameid) {
+          setUser({ email, role: type.toLowerCase(), managerId: parseInt(nameid) });
           setIsAuthenticated(true);
         }
       } catch (error) {

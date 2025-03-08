@@ -1,4 +1,4 @@
-import { LoginRequest, LoginResponse } from "@/types/auth.type";
+import { LoginRequest } from "@/types/auth.type";
 import axios, { AxiosRequestConfig } from "axios";
 
 export const url = import.meta.env.VITE_API_URL;
@@ -55,5 +55,15 @@ export const loginService = async (
       });
   }
   if (type === "employee") {
+    return axios
+      .post(url + "/api/employee/login", loginRequest)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((error) => {
+        // Handle error
+        console.error("Error occurred during login:", error);
+        throw error;
+      });
   }
 };

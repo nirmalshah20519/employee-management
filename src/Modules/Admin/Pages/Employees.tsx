@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import { useForm, SubmitHandler, Controller, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 // import fs from 'fs'
@@ -12,22 +12,19 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/context/ToastContext";
 import Loader from "@/components/Loader";
-import { DataTable } from "@/components/DataTable";
-// import { addService, getAllServices, updateService, deleteService } from "@/Services/shift.service";
-import CircularProgress from "@/components/CircularProgress";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { joiResolver } from '@hookform/resolvers/joi';
-import { FaEdit } from "react-icons/fa";
+import { DataTable } from "@/components/DataTable"; import CircularProgress from "@/components/CircularProgress";
+
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { MdDelete } from "react-icons/md";
-import { Service, serviceSchema } from "@/types/services.type";
-import { createService, deleteService, getServices, updateService } from "@/Services/services.service";
-import { Textarea } from "@/components/ui/textarea";
-import { EmployeeTableColumns, serviceTableColumns } from "@/types/tables.data";
-import { Employee } from "@/types/employee.type";
+import { EmployeeTableColumns } from "@/types/tables.data";
+import { Employee, employeeSchema } from "@/types/employee.type";
 import { Checkbox } from "@/components/ui/checkbox";
-import { createEmployee, getEmployees } from "@/Services/employee.service";
-// import { File } from "buffer";
+import { createEmployee, deleteEmployee, getEmployees, updateEmployee } from "@/Services/employee.service";
+import { joiResolver } from "@hookform/resolvers/joi";
+import { useAuth } from "@/context/AuthContext";
+import { Device } from "@/types/device.type";
+import { getDevices } from "@/Services/device.service";
+import { FaEdit } from "react-icons/fa";
 
 
 export default function EmployeesManagement() {
@@ -38,40 +35,28 @@ export default function EmployeesManagement() {
         control,
         formState: { errors },
         setValue,
-        watch,
         clearErrors,
     } = useForm<Employee>({
-        defaultValues: {} as Employee,
-        // resolver: joiResolver(serviceSchema)
+        defaultValues: { name: '', email: '', verified: false, managerId: -1, deviceIds: [] } as Employee,
+        resolver: joiResolver(employeeSchema)
     });
-
+    // Inside your component:
+    const selectedDeviceIds = useWatch({ control, name: "deviceIds", defaultValue: [] });
+    const { user } = useAuth();
     const [employees, setEmployees] = useState<Employee[]>([]);
-    // console.log(services);
+    const [devices, setDevices] = useState<Device[]>([]);
     const [loading, setLoading] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [flag, setflag] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [currentEmployee, setCurrentEmployee] = useState<Employee | null>(null);
-    const [currImg, setCurrImg] = useState<string | null>(null);
     const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
 
     const toast = useToast();
-
-    // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     const file = e.target.files ? e.target.files[0] : null;
-    //     if (file) {
-    //         // console.log(file);
-    //         setValue('Image', file)
-    //     } else {
-    //         setValue("Image", null); // Ensure the state is updated when there is no file
-    //     }
-    // };
-
     useEffect(() => {
         setLoading(true);
         getEmployees().then((resp) => {
             setEmployees(resp);
-            // console.log(resp);
         }).catch((error) => {
             toast.showToast('Failed to load services', error?.response?.data?.error ?? 'something went wrong', 'error');
         }).finally(() => {
@@ -80,9 +65,18 @@ export default function EmployeesManagement() {
     }, [flag]);
 
     useEffect(() => {
+        setLoading(true);
+        getDevices().then((resp) => {
+            setDevices(resp);
+        }).catch((error) => {
+            toast.showToast('Failed to load devices', error?.response?.data?.error ?? 'Something went wrong', 'error');
+        }).finally(() => {
+            setLoading(false);
+        });
+    }, [flag]);
+
+    useEffect(() => {
         if (currentEmployee) {
-            // console.log('ccc', currentEmployee);
-            // const {PerKgPrice} = currentEmployee;
             reset(currentEmployee)
         } else {
             reset();
@@ -94,13 +88,11 @@ export default function EmployeesManagement() {
     }, [errors]);
 
     const onSubmit: SubmitHandler<Employee> = (data) => {
-        // console.log('hello');
-        // console.log(data);
-        const service = currentEmployee?.Id ? createEmployee : createEmployee;
+        const service = currentEmployee?.id ? updateEmployee : createEmployee;
         setLoading(true);
         console.log(data);
 
-        service({ ...currentEmployee, ...data }).then(() => {
+        service({ ...currentEmployee, ...data, managerId: user?.managerId ?? -1 }).then(() => {
             setDialogOpen(false);
             reset();
             toast.showToast(`Service ${currentEmployee ? 'updated' : 'added'} successfully`, '', 'success');
@@ -126,20 +118,20 @@ export default function EmployeesManagement() {
     };
 
     const confirmDelete = () => {
-        if (employeeToDelete?.Id) {
+        if (employeeToDelete?.id) {
             setLoading(true);
-            // deleteService(employeeToDelete).then(() => {
-            //     toast.showToast('Service deleted successfully', '', 'success');
-            //     setServices(services.filter(s => s.Id !== employeeToDelete.Id));
-            //     setDeleteDialogOpen(false);
-            // }).catch((error) => {
-            //     toast.showToast('Failed to delete shift', error.message, 'error');
-            // }).finally(async () => {
-            //     setLoading(false);
-            //     setflag(f => !f);
-            // });
+            deleteEmployee(employeeToDelete).then(() => {
+                toast.showToast('Employee deleted successfully', '', 'success');
+                setDeleteDialogOpen(false);
+                setflag(f => !f);  // Trigger refresh
+            }).catch((error) => {
+                toast.showToast('Failed to delete employee', error.message, 'error');
+            }).finally(() => {
+                setLoading(false);
+            });
         }
     };
+
 
     const handleCloseDialog = () => {
         setDialogOpen(false);
@@ -161,7 +153,7 @@ export default function EmployeesManagement() {
             <Card>
                 <CardHeader>
                     <Button
-                        className=" w-fit"
+                        className=" w-fit bg-green-600"
                         onClick={() => {
                             reset();
                             // setValue('ServiceType', 'Taxi')
@@ -173,13 +165,13 @@ export default function EmployeesManagement() {
                     <Dialog open={dialogOpen} onOpenChange={handleCloseDialog}>
                         <DialogContent>
                             <DialogHeader>
-                                <DialogTitle className=" text-2xl">{currentEmployee !== null ? 'Edit Service' : 'Add Service'}</DialogTitle>
+                                <DialogTitle className=" text-2xl">{currentEmployee !== null ? 'Edit Employee' : 'Add Employee'}</DialogTitle>
                             </DialogHeader>
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                                 <div className="mb-3">
                                     <Label htmlFor="ServiceType">Employee Name</Label>
                                     <Controller
-                                        name="Name"
+                                        name="name"
                                         control={control}
                                         render={({ field }) => (
                                             <Input
@@ -191,13 +183,13 @@ export default function EmployeesManagement() {
                                             />
                                         )}
                                     />
-                                    {errors.Name && <p className="text-red-500">{errors.Name.message}</p>}
+                                    {errors.name && <p className="text-red-500">{errors.name.message}</p>}
                                 </div>
 
                                 <div className="mb-3">
                                     <Label htmlFor="Email">Email</Label>
                                     <Controller
-                                        name="Email"
+                                        name="email"
                                         control={control}
                                         render={({ field }) => (
                                             <Input
@@ -209,12 +201,42 @@ export default function EmployeesManagement() {
                                             />
                                         )}
                                     />
-                                    {errors.Email && <p className="text-red-500">{errors.Email.message}</p>}
+                                    {errors.email && <p className="text-red-500">{errors.email.message}</p>}
+                                </div>
+
+                                <div className="mb-3">
+                                    <Label>Devices</Label>
+                                    <div className="border p-4 rounded-md max-h-60 overflow-auto">
+                                        {(devices ?? []).map((device) => (
+                                            <div key={device.id} className="flex items-center space-x-2 mb-2">
+                                                <Checkbox
+                                                    id={`device-${device.id}`}
+                                                    checked={selectedDeviceIds.includes(device.id)}
+                                                    onCheckedChange={(checked) => {
+                                                        if (checked) {
+                                                            setValue("deviceIds", [...selectedDeviceIds, device.id]);
+                                                        } else {
+                                                            setValue(
+                                                                "deviceIds",
+                                                                selectedDeviceIds.filter((id: number) => id !== device.id)
+                                                            );
+                                                        }
+                                                    }}
+                                                />
+                                                <Label htmlFor={`device-${device.id}`} className="cursor-pointer">
+                                                    {device.name} [{device.location}]
+                                                </Label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    {errors.deviceIds && (
+                                        <p className="text-red-500 text-xs">{errors.deviceIds.message}</p>
+                                    )}
                                 </div>
 
                                 <div className="mb-3 flex items-center space-x-2">
                                     <Controller
-                                        name="Verified"
+                                        name="verified"
                                         control={control}
                                         render={({ field }) => (
                                             <Checkbox
@@ -226,9 +248,9 @@ export default function EmployeesManagement() {
                                     />
                                     <Label htmlFor="Verified">Is Verified</Label>
                                 </div>
-                                {errors.Verified && <p className="text-red-500">{errors.Verified.message}</p>}
+                                {errors.verified && <p className="text-red-500">{errors.verified.message}</p>}
 
-                                <Button type="submit" className="bg-neutral-800 hover:bg-neutral-700 w-full">
+                                <Button type="submit" className="bg-green-800 hover:bg-green-700 w-full">
                                     {loading ? <CircularProgress size={25} color="white" /> : <>
                                         {currentEmployee !== null ? 'Update' : 'Add'} Employee
                                     </>}
@@ -257,9 +279,9 @@ export default function EmployeesManagement() {
                             header: "Action",
                             cell: ({ row }) => (
                                 <>
-                                    {/* <Button variant={'outline'} onClick={() => handleEdit(row.original)} className="me-2 p-2">
+                                    <Button variant={'outline'} onClick={() => handleEdit(row.original)} className="me-2 p-2">
                                         <FaEdit className=" text-2xl text-blue-500" />
-                                    </Button> */}
+                                    </Button>
                                     <Button variant={'outline'} onClick={() => handleDelete(row.original)} className="me-2 p-2">
                                         <MdDelete className=" text-2xl text-red-500" />
                                     </Button>
@@ -268,7 +290,7 @@ export default function EmployeesManagement() {
                         },
 
                         ]}
-                        data={employees??[]} />
+                        data={employees ?? []} />
                 </CardContent>
             </Card>
 

@@ -17,9 +17,23 @@ export const getEmployees = async () => {
 
 export const createEmployee = async (Employee: Employee) => {
   const config = getConfig();
-  const employee = { ...Employee, ManagerId: 1, Password:'00000000' };
+  const employee = { ...Employee, ManagerId: 1, Password: "00000000" };
   return axios
     .post(`${url}/api/employee/signup`, employee, config)
+    .then((response) => {
+      return response.data;
+    })
+    .catch((error) => {
+      console.error("Error occurred while creating Employees", error);
+      throw error;
+    });
+};
+
+export const updateEmployee = async (Employee: Employee) => {
+  const config = getConfig();
+  const { id, ...employee } = Employee;
+  return axios
+    .put(`${url}/api/employee/${id}`, employee, config)
     .then((response) => {
       return response.data;
     })
@@ -56,16 +70,16 @@ export const createEmployee = async (Employee: Employee) => {
 //     });
 // };
 
-// export const deleteEmployee = async (Employee: Employee) => {
-//   const config = getConfig();
+export const deleteEmployee = async (Employee: Employee) => {
+  const config = getConfig();
 
-//   return axios
-//     .delete(`${url}/api/admin/Employee/${Employee.Id}`, config)
-//     .then((response) => {
-//       return response.data;
-//     })
-//     .catch((error) => {
-//       console.error("Error occurred while deleting Employees", error);
-//       throw error;
-//     });
-// };
+  return axios
+    .delete(`${url}/api/employee/${Employee.id}`, config)
+    .then((response) => {
+      return response.data;
+    })
+    .catch((error) => {
+      console.error("Error occurred while deleting Employee", error);
+      throw error;
+    });
+};

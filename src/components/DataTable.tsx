@@ -150,7 +150,7 @@ export function DataTable<TData>({
                             <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header, index) => (
                                     <TableHead
-                                        className={`bg-neutral-800 text-white ${index === 0 ? ' rounded-ss-lg' : ''
+                                        className={`bg-orange-600 text-white ${index === 0 ? ' rounded-ss-lg' : ''
                                             }${index === headerGroup.headers.length - 1 ? ' rounded-se-lg' : ''
                                             } ${(header.column.columnDef as ColumnDef<TData>).customClassName || ''}`}
                                         key={header.id}

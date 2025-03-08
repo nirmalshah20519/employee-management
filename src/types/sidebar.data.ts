@@ -4,7 +4,7 @@ import * as FaIcons from "react-icons/fa";
 // import * as BiIcons from "react-icons/bi";
 // import * as PiIcons from "react-icons/pi";
 // import * as RiIcons from "react-icons/ri";
-// import * as MdIcons from "react-icons/md";
+import * as MdIcons from "react-icons/md";
 
 // Define the type for navigation items
 // sidebar.data.ts
@@ -42,24 +42,17 @@ export const adminNavItems: NavItem[] = [
     link: "/employees",
   },
   {
-    label: "User Management",
-    icon: getIcon("FaUser", FaIcons),
-    subItems: [
-      {
-        label: "Customer",
-        icon: getIcon("FaUserCircle", FaIcons),
-        link: "/customers",
-      },
-      {
-        label: "Driver",
-        icon: getIcon("FaCar", FaIcons),
-        link: "/drivers",
-      },
-    ],
+    label: "Devices",
+    icon: getIcon("MdDevices", MdIcons),
+    link: "/devices",
   },
+
+];
+
+export const employeeNavItems: NavItem[] = [
   {
-    label: "Services",
-    icon: getIcon("FaCarSide", FaIcons),
-    link: "/services",
+    label: "Dashboard",
+    icon: getIcon("FaUserCircle", FaIcons),
+    link: "/dashboard",
   },
 ];

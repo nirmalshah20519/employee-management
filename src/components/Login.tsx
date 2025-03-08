@@ -12,7 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { useNavigate } from "react-router-dom";
 
-export default function Login({type}: {type: string}) {
+export default function Login({ type }: { type: string }) {
     const {
         register,
         handleSubmit,
@@ -30,7 +30,10 @@ export default function Login({type}: {type: string}) {
 
     useEffect(() => {
         if (user) {
-            navigate(`/${type}/employees`);
+            if(user.role==='manager')
+            navigate(`/${user.role}/employees`);
+            else
+            navigate(`/${user.role}/dashboard`)
         }
     }, [user])
 
@@ -41,11 +44,10 @@ export default function Login({type}: {type: string}) {
             const token = res || '' as string;
             const user = authorize(token, type);
             console.log(user);
-            // toast?.showToast("Login Successful", `Welcome Back ${res.user?.email}!`, "success");
-            // console.log(`/${type}/dashboard`);
-            navigate(`/${type}/employees`)
+            type === 'manager' ? navigate(`/${type}/employees`) : navigate(`/${type}/dashboard`)
+
         }).catch((err) => {
-            
+
             console.log(err)
             toast?.showToast("Login Failed", err.response.data.detail, "error")
         }).finally(() => {
