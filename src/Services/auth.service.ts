@@ -4,7 +4,7 @@ import axios, { AxiosRequestConfig } from "axios";
 export const url = import.meta.env.VITE_API_URL;
 
 export const getConfig = (): AxiosRequestConfig => {
-  const t = localStorage.getItem("accessToken");
+  const t = localStorage.getItem("emp_management_token");
   return {
     headers: {
       "Content-Type": "application/json",

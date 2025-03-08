@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.log(user);
       setUser(user);
       setIsAuthenticated(true);
-      localStorage.setItem("token", token);
+      localStorage.setItem("emp_management_token", token);
       localStorage.setItem("type", type);
       return user;
     } catch (error) {
